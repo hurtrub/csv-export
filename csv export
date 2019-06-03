@@ -1,0 +1,137 @@
+<?php
+if (isset($_POST['csvfinish'])){
+	
+	$month = $_POST["date_finished"];
+	if ($month == ""){
+		echo "<script>alert('Please select month.');window.location='../finishedplan.php';</script>";
+	}else{
+		header('Content-Type: text/csv; charset=utf-8');
+		header('Content-Disposition: attachment; filename=Generated Finish Plan "'.$month.'".csv');
+		header("Pragma: no-cache");
+		header("Expires: 0");
+
+		$output = fopen('php://output', 'w');
+
+
+		fputcsv($output, array(
+		'CONTROL NUMBER', 
+		'HOUSE CODE',
+		'DATE RECEIVE',
+		'FLOOR',
+		'TYPE',
+		'ENCODE',
+		'ENCODE TIME IN',
+		'ENCODE TIME OUT',
+		'CHECKING',
+		'CHECKING TIME IN',
+		'CHECKING TIME OUT',
+		'CORRECTION',
+		'CORRECTION TIME IN',
+		'CORRECTION TIME OUT',
+		'STATUS',
+		));
+
+
+		$pdo = new PDO('mysql:host=localhost;dbname=structural;','root','admin');
+		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$stmt = $pdo->prepare(
+			"SELECT 
+			control_number,
+			house_code,
+			date_receive,
+			floor,
+			type,
+			encode,
+			encode_timein,
+			encode_timeout,
+			checking,
+			check_timein,
+			check_timeout,
+			correct,
+			correct_timein,
+			correct_timeout,
+			status
+			FROM kizukurimonitoring WHERE correct_timeout like '$month%' and status = 'Finished' OR check_timeout like '$month%' and status = 'Finished' ORDER BY `id` ASC"
+		  );
+		  $flag = $stmt->execute();
+		  if (!$flag) {
+			$info = $stmt->errorInfo();
+			exit($info[2]);
+		  }
+
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))fputcsv($output, $row);
+	}
+
+	
+	
+}
+
+
+
+
+if (isset($_POST['csvfinishmonth'])){
+	$months = $_POST["monthfinished"];
+	if ($months == ""){
+		echo "<script>alert('Please select month.');window.location='../finishedplan.php';</script>";
+	}else{
+		header('Content-Type: text/csv; charset=utf-8');
+		header('Content-Disposition: attachment; filename=Generated Finish Plan "'.$months.'".csv');
+		header("Pragma: no-cache");
+		header("Expires: 0");
+
+		$output = fopen('php://output', 'w');
+
+
+		fputcsv($output, array(
+		'CONTROL NUMBER', 
+		'HOUSE CODE',
+		'DATE RECEIVE',
+		'FLOOR',
+		'TYPE',
+		'ENCODE',
+		'ENCODE TIME IN',
+		'ENCODE TIME OUT',
+		'CHECKING',
+		'CHECKING TIME IN',
+		'CHECKING TIME OUT',
+		'CORRECTION',
+		'CORRECTION TIME IN',
+		'CORRECTION TIME OUT',
+		'STATUS',
+		));
+
+
+		$pdo = new PDO('mysql:host=localhost;dbname=structural;','root','admin');
+		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$stmt = $pdo->prepare(
+			"SELECT 
+			control_number,
+			house_code,
+			date_receive,
+			floor,
+			type,
+			encode,
+			encode_timein,
+			encode_timeout,
+			checking,
+			check_timein,
+			check_timeout,
+			correct,
+			correct_timein,
+			correct_timeout,
+			status
+			FROM kizukurimonitoring WHERE correct_timeout like '$months%' and status = 'Finished' OR check_timeout like '$months%' and status = 'Finished' ORDER BY `id` ASC"
+		  );
+		  $flag = $stmt->execute();
+		  if (!$flag) {
+			$info = $stmt->errorInfo();
+			exit($info[2]);
+		  }
+
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC))fputcsv($output, $row);
+	}
+
+	
+	
+}
+?>
